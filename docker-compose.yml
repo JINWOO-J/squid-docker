@@ -1,0 +1,17 @@
+version: '3.7'
+services:
+  squid:
+    image: jinwoo/squid
+    container_name: squid-proxy
+    network_mode: host
+    ports:
+      - "3128:3128"
+    volumes:
+      - ./conf:/conf/
+      - ./logs:/var/log/squid
+      - ./certs:/certs
+    restart: unless-stopped
+    ulimits:
+      nofile:
+        soft: 20480
+        hard: 20480

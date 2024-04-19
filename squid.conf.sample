@@ -1,0 +1,65 @@
+# Default Squid Conf
+
+visible_hostname squid_proxy
+
+# Listen port
+http_port 3128
+
+# 모든 네트워크로부터의 접근 허용
+acl all src all
+
+http_access allow all
+
+# 로깅 설정
+# access_log /var/log/squid/access.log squid
+
+#logformat custom_format %>a %ui %un [%tl] "%rm %ru HTTP/%rv" %Hs %<st "%{Referer}>h" "%{User-Agent}>h"
+logformat custom_format %>a %[ui %[un [%tl] "%rm %ru HTTP/%rv" %>Hs %st %>st %<st %>sh %<sh %{Referer}>h" "%{User-Agent}>h" %Ss:%Sh
+#logformat custom_format %>a %un [%tl] "%rm %ru HTTP/%rv" %>Hs "%{User-Agent}>h" %Ss/%03>Hs %<st %{visible_hostname}>v
+access_log /var/log/squid/custom_access.log custom_format
+# access_log none
+
+
+# DNS 설정
+dns_nameservers 8.8.8.8 8.8.4.4
+
+# 캐시 설정
+# cache
+# cache_log /var/log/squid/cache.log
+# cache_mem 512 MB
+# cache_dir ufs /var/spool/squid 100 16 256
+
+max_filedesc 65536
+cache_log /dev/null
+cache deny all
+cache_mem 1 MB
+
+pipeline_prefetch on
+server_persistent_connections on
+client_persistent_connections on
+
+#성공한 dns 조회
+positive_dns_ttl 360 seconds
+
+#실패 dns 조회
+negative_dns_ttl 60 seconds
+
+shutdown_lifetime 3 seconds
+httpd_suppress_version_string on
+
+#################################### ACL ####################################
+#acl lan src 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 # RFC1918
+#acl Safe_ports port 80 443
+############################################################################
+
+# Rules
+#http_access deny !Safe_ports
+#http_access allow lan
+#http_access deny all
+
+#refresh_pattern ^ftp: 1440 20% 10080
+#refresh_pattern ^gopher: 1440 0% 1440
+#refresh_pattern -i (/cgi-bin/|\?) 0 0% 0
+#refresh_pattern (Release|Packages(.gz)*)$ 0 20% 2880
+#refresh_pattern . 0 20% 4320
+# kill -HUP $(pgrep squid)
